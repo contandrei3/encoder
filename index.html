@@ -6,105 +6,171 @@
     <title>Codificare Mesaj</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Arial', sans-serif;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             height: 100vh;
-            background-color: #f4f4f4;
+            background: linear-gradient(135deg, #ff7e5f, #feb47b);
+            margin: 0;
+            color: #fff;
         }
         .container {
-            background: white;
-            padding: 20px;
+            background: rgba(255, 255, 255, 0.8);
+            padding: 40px;
             border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
             text-align: center;
-            width: 300px;
+            width: 380px;
         }
-        input {
+        .input-container {
+            position: relative;
+            margin: 15px 0;
+        }
+        .input {
+            padding: 12px;
             width: 100%;
-            padding: 8px;
-            margin: 10px 0;
-            border: 1px solid #ccc;
-            border-radius: 5px;
+            height: 50px;
+            border: 2px solid #0B2447;
+            border-radius: 8px;
+            font-size: 16px;
+            background: transparent;
+            outline: none;
+            box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
         }
+        .input:focus {
+            box-shadow: 0 0 12px rgba(0, 150, 255, 0.6);
+            border-color: #23c483;
+        }
+        .label {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            color: #0B2447;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            transform: scale(0);
+            z-index: -1;
+        }
+        .input-container .topline, .input-container .underline {
+            position: absolute;
+            content: "";
+            background-color: #0B2447;
+            width: 0%;
+            height: 2px;
+            right: 0;
+            transition: all 0.3s ease;
+        }
+        .input-container .topline { top: 0; }
+        .input-container .underline { bottom: 0; }
+        .input-container input:focus ~ .topline { width: 35%; }
+        .input-container input:focus ~ .underline { width: 100%; }
+        .input-container input:focus ~ .label {
+            top: -10px;
+            transform: scale(1);
+        }
+
         button {
             padding: 1.3em 3em;
-            font-size: 12px;
+            font-size: 14px;
             text-transform: uppercase;
-            letter-spacing: 2.5px;
-            font-weight: 500;
-            color: #000;
-            background-color: #fff;
+            letter-spacing: 2px;
+            font-weight: 600;
+            color: #fff;
+            background-color: #23c483;
             border: none;
             border-radius: 45px;
             box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.1);
-            transition: all 0.3s ease 0s;
+            transition: all 0.3s ease;
             cursor: pointer;
             outline: none;
+            width: 100%;
         }
+
         button:hover {
-            background-color: #23c483;
-            box-shadow: 0px 15px 20px rgba(46, 229, 157, 0.4);
-            color: #fff;
+            background-color: #ff6f61;
+            box-shadow: 0px 15px 20px rgba(255, 111, 97, 0.4);
             transform: translateY(-7px);
         }
+
         button:active {
             transform: translateY(-1px);
         }
+
         #rezultat {
             margin-top: 15px;
             font-weight: bold;
+            font-size: 18px;
+            color: #007bff;
+            text-shadow: 1px 1px 5px rgba(0, 0, 0, 0.5);
+        }
+
+        h2 {
+            font-size: 26px;
+            font-weight: 700;
+            margin-bottom: 30px;
+            color: #333;
         }
     </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Codificare Mesaj</h2>
+        <!-- Input pentru cheie -->
+        <div class="input-container">
+            <input type="text" id="cheie" class="input" placeholder="Introduceți cheia de codificare">
+            <span class="topline"></span>
+            <span class="underline"></span>
+            <label class="label">Cheie</label>
+        </div>
+        <!-- Input pentru mesaj -->
+        <div class="input-container">
+            <input type="text" id="mesaj" class="input" placeholder="Introduceți mesajul de codificat">
+            <span class="topline"></span>
+            <span class="underline"></span>
+            <label class="label">Mesaj</label>
+        </div>
+        <!-- Buton pentru a codifica mesajul -->
+        <button onclick="encodeMessage()">Codează</button>
+        <!-- Afișarea rezultatului -->
+        <p id="rezultat"></p>
+    </div>
+
     <script>
-        // Functie de hashing simpla pentru a face cheia mai greu de reprodus
-        function hashKey(key) {
-            let salt = "RandomSalt1234"; // Salt adaugat pentru a face cheia mai unica
-            let combined = key + salt;
-            let hash = 0;
-
-            for (let i = 0; i < combined.length; i++) {
-                hash = (hash << 5) - hash + combined.charCodeAt(i);
-                hash |= 0; // Convertim la 32-bit integer
+        function transfkey(key) {
+            let val = 0;
+            for (let j = 0; j < key.length; j++) {
+                val += key.charCodeAt(j) - 10;
             }
-
-            return Math.abs(hash) % 10; // Returneaza un numar intre 0 si 9
+            return val % 10;
         }
 
         function encodeMessage() {
             let cheie = document.getElementById("cheie").value;
             let mesaj = document.getElementById("mesaj").value;
             let n = mesaj.length;
-            let M = hashKey(cheie);  // Calculam valoarea cheii cu hash
-            let rezultat = '';
+            let M = transfkey(cheie);
+            let rezultat = "";
 
             for (let i = 0; i < n; i++) {
                 if (mesaj[i] === ' ' || mesaj[i] === '.' || mesaj[i] === '?' || mesaj[i] === '!') {
                     rezultat += mesaj[i];
                     continue;
                 }
+                let charCode = mesaj.charCodeAt(i);
+                charCode += 3;
                 if (i % 2 === 0) {
-                    rezultat += String.fromCharCode(mesaj.charCodeAt(i) + M + 3);
+                    charCode += M;
                 } else {
-                    rezultat += String.fromCharCode(mesaj.charCodeAt(i) - M + 3);
+                    charCode -= M;
                 }
+                rezultat += String.fromCharCode(charCode);
             }
 
-            document.getElementById("rezultat").innerText = "Mesaj codificat: " + rezultat;
+            document.getElementById("rezultat").innerText = "Mesajul codificat: " + rezultat;
         }
     </script>
-</head>
-<body>
-    <div class="container">
-        <h2>Codificare Mesaj</h2>
-        <label for="cheie">Cheie:</label>
-        <input type="text" id="cheie" placeholder="Introdu cheia">
-        <label for="mesaj">Mesaj:</label>
-        <input type="text" id="mesaj" placeholder="Introdu mesajul">
-        <button onclick="encodeMessage()">Codează</button>
-        <p id="rezultat"></p>
-    </div>
 </body>
 </html>
