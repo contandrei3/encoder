@@ -59,19 +59,25 @@
         }
     </style>
     <script>
-        function transfkey(key) {
-            let val = 0;
-            for (let j = 0; j < key.length; j++) {
-                val += (key.charCodeAt(j) - 10);
+        // Functie de hashing simpla pentru a face cheia mai greu de reprodus
+        function hashKey(key) {
+            let salt = "RandomSalt1234"; // Salt adaugat pentru a face cheia mai unica
+            let combined = key + salt;
+            let hash = 0;
+
+            for (let i = 0; i < combined.length; i++) {
+                hash = (hash << 5) - hash + combined.charCodeAt(i);
+                hash |= 0; // Convertim la 32-bit integer
             }
-            return val % 10;
+
+            return Math.abs(hash) % 10; // Returneaza un numar intre 0 si 9
         }
 
         function encodeMessage() {
             let cheie = document.getElementById("cheie").value;
             let mesaj = document.getElementById("mesaj").value;
             let n = mesaj.length;
-            let M = transfkey(cheie);
+            let M = hashKey(cheie);  // Calculam valoarea cheii cu hash
             let rezultat = '';
 
             for (let i = 0; i < n; i++) {
